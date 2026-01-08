@@ -15,24 +15,29 @@ const INITIAL_STATE: CertidaoForm = {
   orgao: '',
   dataEmissao: '',
   fimVigencia: '',
-  statusNovoVenc: ''
+  statusNovoVenc: '',
 };
 
 type Tab = 'cadastro' | 'consulta';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('cadastro');
-  
+
   // State for Form
   const [formData, setFormData] = useState<CertidaoForm>(INITIAL_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -51,40 +56,42 @@ export default function App() {
           orgao: formData.orgao,
           dataEmissao: formData.dataEmissao,
           fimVigencia: formData.fimVigencia,
-          statusNovoVenc: formData.statusNovoVenc
-        }
+          statusNovoVenc: formData.statusNovoVenc,
+        },
       };
 
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json', 
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-
+      // lê sempre o JSON e decide pelo campo ok
       const data: ApiResponse = await response.json();
 
       if (data && data.ok) {
-        setSubmitStatus({ type: 'success', message: 'Certidão cadastrada com sucesso!' });
+        setSubmitStatus({
+          type: 'success',
+          message: 'Certidão cadastrada com sucesso!',
+        });
         setFormData(INITIAL_STATE);
-        
+
         // Auto-hide success message after 5 seconds
         setTimeout(() => {
-            setSubmitStatus({ type: null, message: '' });
+          setSubmitStatus({ type: null, message: '' });
         }, 5000);
       } else {
-        throw new Error(data.message || 'Erro desconhecido ao salvar.');
+        throw new Error(
+          data?.message || (data as any)?.error || 'Erro desconhecido ao salvar.'
+        );
       }
     } catch (error) {
       console.error('Erro ao enviar:', error);
-      setSubmitStatus({ 
-        type: 'error', 
-        message: 'Falha ao conectar com o servidor. Tente novamente.' 
+      setSubmitStatus({
+        type: 'error',
+        message: 'Falha ao conectar com o servidor. Tente novamente.',
       });
     } finally {
       setIsSubmitting(false);
@@ -98,14 +105,17 @@ export default function App() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center justify-center p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
             <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Gestão de Certidões</h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">Controle unificado de documentos e vencimentos.</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Gestão de Certidões
+          </h1>
+          <p className="mt-2 text-slate-600 dark:text-slate-400">
+            Controle unificado de documentos e vencimentos.
+          </p>
         </div>
 
         {/* Tab Navigation */}
@@ -138,24 +148,28 @@ export default function App() {
 
         {/* Main Card */}
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300 min-h-[500px]">
-          
           {activeTab === 'cadastro' ? (
             <>
               {/* Status Alert Banner */}
               {submitStatus.type && (
-                <div className={`p-4 flex items-center gap-3 ${
-                  submitStatus.type === 'success' 
-                    ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-b border-green-100 dark:border-green-800' 
-                    : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-b border-red-100 dark:border-red-800'
-                }`}>
-                  {submitStatus.type === 'success' ? <CheckCircle2 className="w-5 h-5 flex-shrink-0" /> : <AlertCircle className="w-5 h-5 flex-shrink-0" />}
+                <div
+                  className={`p-4 flex items-center gap-3 ${
+                    submitStatus.type === 'success'
+                      ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-b border-green-100 dark:border-green-800'
+                      : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-b border-red-100 dark:border-red-800'
+                  }`}
+                >
+                  {submitStatus.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  )}
                   <span className="font-medium">{submitStatus.message}</span>
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
                   {/* Empresa */}
                   <div className="col-span-1 md:col-span-2">
                     <Input
@@ -240,7 +254,6 @@ export default function App() {
                       required
                     />
                   </div>
-
                 </div>
 
                 <div className="pt-4 flex justify-end">
@@ -268,11 +281,10 @@ export default function App() {
             <CertidaoList />
           )}
         </div>
-        
+
         <p className="text-center text-xs text-slate-400 dark:text-slate-600 mt-6">
           &copy; {new Date().getFullYear()} Sistema de Gestão Corporativa. Todos os direitos reservados.
         </p>
-
       </div>
     </div>
   );
