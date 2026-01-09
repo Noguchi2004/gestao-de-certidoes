@@ -30,19 +30,13 @@ export default async function handler(
     const text = await gsResponse.text();
     console.log('Resposta do Apps Script:', gsResponse.status, text);
 
-    let data: any;
+    let data;
     try {
       data = JSON.parse(text);
     } catch {
       data = { ok: false, raw: text };
     }
 
-    // Se o Apps Script respondeu ok, força status 200
-    if (data.ok) {
-      return res.status(200).json(data);
-    }
-
-    // Caso contrário, repassa o status original
     return res.status(gsResponse.status).json(data);
   } catch (error: any) {
     console.error('Erro na Vercel:', error);
