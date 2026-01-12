@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Save, Loader2, CheckCircle2, AlertCircle, List, PlusCircle } from 'lucide-react';
+import { FileText, Save, Loader2, CheckCircle2, AlertCircle, List, PlusCircle, Plus, X } from 'lucide-react';
 import { Input } from './components/ui/Input';
 import { Select } from './components/ui/Select';
 import { ThemeToggle } from './components/ui/ThemeToggle';
