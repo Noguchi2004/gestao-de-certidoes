@@ -41,7 +41,7 @@ export default function App() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: '' });
@@ -68,8 +68,16 @@ export default function App() {
         body: JSON.stringify(payload),
       });
 
-      // lê sempre o JSON e decide pelo campo ok
-      const data: ApiResponse = await response.json();
+      // Lê como texto primeiro para evitar erro de JSON
+      const text = await response.text();
+      console.log('Resposta bruta da API:', response.status, text);
+
+      let data: ApiResponse;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error('Resposta da API não é JSON válido: ' + text);
+      }
 
       if (data && data.ok) {
         setSubmitStatus({
@@ -78,13 +86,15 @@ export default function App() {
         });
         setFormData(INITIAL_STATE);
 
-        // Auto-hide success message after 5 seconds
+        // Auto-hide success message after 5 segundos
         setTimeout(() => {
           setSubmitStatus({ type: null, message: '' });
         }, 5000);
       } else {
         throw new Error(
-          data?.message || (data as any)?.error || 'Erro desconhecido ao salvar.'
+          (data as any)?.message ||
+            (data as any)?.error ||
+            'Erro desconhecido ao salvar.'
         );
       }
     } catch (error) {
