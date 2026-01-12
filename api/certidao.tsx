@@ -3,17 +3,14 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbxMh707Oq-U0NFflYNpcQKT662hC-aMeDKIIwClr-14fAs63JcQ5BYO39CMCQLPVNmTXg/exec';
 
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {
     console.log('Body recebido na Vercel:', req.body);
-    const { certidao } = req.body || {};
+    const { certidao } = (req as any).body || {};
 
     if (!certidao) {
       return res
@@ -45,3 +42,6 @@ export default async function handler(
       .json({ ok: false, error: 'Erro ao falar com Apps Script' });
   }
 }
+
+// Export em estilo CommonJS
+module.exports = handler;
