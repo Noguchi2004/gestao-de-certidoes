@@ -4,18 +4,19 @@ const APPS_SCRIPT_URL =
   'https://script.google.com/macros/s/AKfycbxMh707Oq-U0NFflYNpcQKT662hC-aMeDKIIwClr-14fAs63JcQ5BYO39CMCQLPVNmTXg/exec';
 
 async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
-  }
-
   try {
-    console.log('Body recebido na Vercel:', req.body);
-    const { certidao } = (req as any).body || {};
+    if (req.method !== 'POST') {
+      return res.status(405).json({ ok: false, error: 'Method not allowed' });
+    }
+
+    console.log('Body recebido na Vercel:', (req as any).body);
+    const body: any = (req as any).body || {};
+    const certidao = body.certidao;
 
     if (!certidao) {
       return res
         .status(400)
-        .json({ ok: false, error: 'Payload sem certidao' });
+        .json({ ok: false, error: 'Payload sem certidao', body });
     }
 
     const gsResponse = await fetch(APPS_SCRIPT_URL, {
@@ -39,9 +40,8 @@ async function handler(req: VercelRequest, res: VercelResponse) {
     console.error('Erro na Vercel:', error);
     return res
       .status(500)
-      .json({ ok: false, error: 'Erro ao falar com Apps Script' });
+      .json({ ok: false, error: String(error) });
   }
 }
 
-// Export em estilo CommonJS
 module.exports = handler;
