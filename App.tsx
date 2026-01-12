@@ -31,6 +31,15 @@ export default function App() {
     message: string;
   }>({ type: null, message: '' });
 
+  // ---- NOVO: estados para multi‑email ----
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const emailList = formData.email
+    ? formData.email.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  // ----------------------------------------
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -40,6 +49,47 @@ export default function App() {
       [name]: value,
     }));
   };
+
+  // ---- NOVO: funções multi‑email ----
+  const handleAddEmail = () => {
+    if (!currentEmail) return;
+
+    const emails = emailList;
+
+    if (emails.length >= 5) {
+      setEmailError('Limite de 5 emails atingido.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(currentEmail)) {
+      setEmailError('Formato de email inválido.');
+      return;
+    }
+
+    if (emails.includes(currentEmail)) {
+      setEmailError('Este email já foi adicionado.');
+      return;
+    }
+
+    const newEmails = [...emails, currentEmail];
+    setFormData(prev => ({ ...prev, email: newEmails.join(', ') }));
+    setCurrentEmail('');
+    setEmailError('');
+  };
+
+  const removeEmail = (emailToRemove: string) => {
+    const newEmails = emailList.filter(e => e !== emailToRemove);
+    setFormData(prev => ({ ...prev, email: newEmails.join(', ') }));
+  };
+
+  const handleEmailKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddEmail();
+    }
+  };
+  // ------------------------------------
 
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,15 +253,66 @@ export default function App() {
                   />
 
                   {/* Email */}
-                  <Input
-                    label="Email do Responsável"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="email@empresa.com.br"
-                    required
-                  />
+                  {/* Emails (multi‑email) */}
+<div className="flex flex-col gap-1.5">
+  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+    Emails do Responsável (Máx. 5) <span className="text-red-500 ml-1">*</span>
+  </label>
+
+  <div className="flex gap-2">
+    <div className="relative flex-1">
+      <input
+        type="email"
+        value={currentEmail}
+        onChange={(e) => {
+          setCurrentEmail(e.target.value);
+          if (emailError) setEmailError('');
+        }}
+        onKeyDown={handleEmailKeyDown}
+        placeholder="Digite um email e pressione Enter..."
+        className={`flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
+          emailList.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''
+        }`}
+        disabled={emailList.length >= 5}
+      />
+    </div>
+    <button
+      type="button"
+      onClick={handleAddEmail}
+      disabled={!currentEmail || emailList.length >= 5}
+      className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 dark:border-slate-700"
+      title="Adicionar Email"
+    >
+      <PlusCircle className="w-5 h-5" />
+    </button>
+  </div>
+
+  {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+
+  <div className="flex flex-wrap gap-2 min-h-[30px] pt-1">
+    {emailList.map((email, idx) => (
+      <span
+        key={idx}
+        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50"
+      >
+        {email}
+        <button
+          type="button"
+          onClick={() => removeEmail(email)}
+          className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5 transition-colors focus:outline-none"
+          title="Remover email"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </span>
+    ))}
+    {emailList.length === 0 && (
+      <span className="text-xs text-slate-400 italic py-1">
+        Nenhum email adicionado.
+      </span>
+    )}
+  </div>
+</div>
 
                   {/* Tipo de Documento */}
                   <Select
