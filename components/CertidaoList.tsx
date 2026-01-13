@@ -193,14 +193,14 @@ export const CertidaoList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                      {item.fimVigencia
-                        ? new Date(item.fimVigencia).toLocaleDateString(
-                            'pt-BR',
-                            { timeZone: 'UTC' }
-                          )
-                        : '-'}
+                    {item.fimVigencia === 'Indeterminado'
+                    ? 'Indeterminado'
+                    : item.fimVigencia
+                    ? new Date(item.fimVigencia).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+                    : '-'}
                     </span>
                   </td>
+
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                     {item.statusNovoVenc}
                   </td>
