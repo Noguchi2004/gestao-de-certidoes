@@ -1,24 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { CertidaoForm } from '../types';
-import { Loader2, RefreshCw, FileX } from 'lucide-react';
+import {
+  Loader2,
+  RefreshCw,
+  FileX,
+  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
+} from 'lucide-react';
 
 // URL específica para Leitura (GET)
-const DATA_URL = 'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
+const DATA_URL =
+  'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
+
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  key: keyof CertidaoForm | null;
+  direction: SortDirection;
+}
 
 export const CertidaoList: React.FC = () => {
   const [data, setData] = useState<CertidaoForm[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
+  // estado de ordenação
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null,
+    direction: 'asc',
+  });
+
   const fetchData = async () => {
     setIsLoading(true);
     setError(undefined);
     try {
-      // Fetch direto ao Google Apps Script
-      // redirect: 'follow' é essencial para seguir o redirecionamento do Google
       const response = await fetch(DATA_URL, {
         method: 'GET',
-        redirect: 'follow'
+        redirect: 'follow',
       });
 
       if (!response.ok) {
@@ -26,14 +45,14 @@ export const CertidaoList: React.FC = () => {
       }
 
       const result = await response.json();
-      
-      // Ajuste para garantir que é um array, dependendo de como o Apps Script retorna (direto ou {data: []})
-      const list = Array.isArray(result) ? result : (result.data || []);
-      
+      const list = Array.isArray(result) ? result : result.data || [];
+
       setData(list);
     } catch (err: any) {
       console.error('Erro ao buscar dados:', err);
-      setError('Não foi possível carregar a lista de certidões. Verifique sua conexão.');
+      setError(
+        'Não foi possível carregar a lista de certidões. Verifique sua conexão.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -42,6 +61,60 @@ export const CertidaoList: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // aplica ordenação em memória
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return data;
+
+    return [...data].sort((a, b) => {
+      const key = sortConfig.key as keyof CertidaoForm;
+      const aValue = a[key] ? String(a[key]).toLowerCase() : '';
+      const bValue = b[key] ? String(b[key]).toLowerCase() : '';
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortConfig]);
+
+  const requestSort = (key: keyof CertidaoForm) => {
+    let direction: SortDirection = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey: keyof CertidaoForm) => {
+    if (sortConfig.key !== columnKey) {
+      return (
+        <ArrowUpDown className="w-4 h-4 ml-1 text-slate-400 opacity-50 group-hover:opacity-100 transition-opacity" />
+      );
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ChevronUp className="w-4 h-4 ml-1 text-blue-600 dark:text-blue-400" />
+    ) : (
+      <ChevronDown className="w-4 h-4 ml-1 text-blue-600 dark:text-blue-400" />
+    );
+  };
+
+  const TableHeader = ({
+    label,
+    columnKey,
+  }: {
+    label: string;
+    columnKey: keyof CertidaoForm;
+  }) => (
+    <th
+      className="px-6 py-3 font-medium cursor-pointer group hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors select-none"
+      onClick={() => requestSort(columnKey)}
+    >
+      <div className="flex items-center justify-between">
+        {label}
+        {getSortIcon(columnKey)}
+      </div>
+    </th>
+  );
 
   if (isLoading && data.length === 0) {
     return (
@@ -57,7 +130,7 @@ export const CertidaoList: React.FC = () => {
       <div className="flex flex-col items-center justify-center py-16 text-red-500 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900 mx-6">
         <FileX className="w-10 h-10 mb-2" />
         <p className="font-medium">{error}</p>
-        <button 
+        <button
           onClick={fetchData}
           className="mt-4 px-4 py-2 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-md transition-colors text-sm"
         >
@@ -84,7 +157,7 @@ export const CertidaoList: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        {data.length === 0 ? (
+        {sortedData.length === 0 ? (
           <div className="text-center py-12 text-slate-500 dark:text-slate-400">
             Nenhuma certidão encontrada na base.
           </div>
@@ -92,18 +165,18 @@ export const CertidaoList: React.FC = () => {
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
               <tr>
-                <th className="px-6 py-3 font-medium">Empresa / Resp.</th>
-                <th className="px-6 py-3 font-medium">CNPJ</th>
-                <th className="px-6 py-3 font-medium">Tipo</th>
-                <th className="px-6 py-3 font-medium">Órgão</th>
-                <th className="px-6 py-3 font-medium">Vencimento</th>
-                <th className="px-6 py-3 font-medium">Status</th>
+                <TableHeader label="Empresa / Resp." columnKey="empresa" />
+                <TableHeader label="CNPJ" columnKey="cnpj" />
+                <TableHeader label="Tipo" columnKey="tipoDocumento" />
+                <TableHeader label="Órgão" columnKey="orgao" />
+                <TableHeader label="Vencimento" columnKey="fimVigencia" />
+                <TableHeader label="Status" columnKey="statusNovoVenc" />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-              {data.map((item, index) => (
-                <tr 
-                  key={index} 
+              {sortedData.map((item, index) => (
+                <tr
+                  key={index}
                   className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                 >
                   <td className="px-6 py-4 font-medium text-slate-900 dark:text-white whitespace-nowrap">
@@ -120,7 +193,12 @@ export const CertidaoList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                      {item.fimVigencia ? new Date(item.fimVigencia).toLocaleDateString('pt-BR') : '-'}
+                      {item.fimVigencia
+                        ? new Date(item.fimVigencia).toLocaleDateString(
+                            'pt-BR',
+                            { timeZone: 'UTC' }
+                          )
+                        : '-'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
@@ -133,7 +211,7 @@ export const CertidaoList: React.FC = () => {
         )}
       </div>
       <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-        Total de registros: {data.length}
+        Total de registros: {sortedData.length}
       </div>
     </div>
   );
