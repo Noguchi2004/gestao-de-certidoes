@@ -156,12 +156,13 @@ export const CertidaoList: React.FC = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        {sortedData.length === 0 ? (
-          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-            Nenhuma certidão encontrada na base.
-          </div>
-        ) : (
+      <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
+        {sortedData.length === 0 ? (...) : (
+          <table className="min-w-full text-sm text-left">
+            ...
+          </table>
+        )}
+      </div>  
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
               <tr>
