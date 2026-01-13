@@ -129,6 +129,8 @@ export default function App() {
           dataEmissao: formData.dataEmissao,
           fimVigencia: formData.fimVigencia,
           statusNovoVenc: formData.statusNovoVenc,
+          gestor: formData.gestor,
+          responsael: formData.responsavel
         },
       };
 
@@ -403,6 +405,24 @@ export default function App() {
                     />
                   </div>
                 </div>
+
+                <Input
+                  label="Gestor"
+                  name="gestor"
+                  value={formData.gestor}
+                  onChange={handleChange}
+                  placeholder="Digite o nome do gestor"
+                  required
+                  />
+
+                <Input
+                  label="Reponsável"
+                  name="responsavel"
+                  value={formData.responsavel}
+                  onChange={handleChange}
+                  placeholder="Digite o nome do responsável"
+                  required
+                  />
 
                 <div className="pt-4 flex justify-end">
                   <button
