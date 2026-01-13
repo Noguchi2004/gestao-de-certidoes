@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CertidaoForm } from '../types';
-import { Loader2, RefreshCw, FileX } from 'lucide-react';
+import { Loader2, RefreshCw, FileX,ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
 
 // URL específica para Leitura (GET)
 const DATA_URL = 'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
