@@ -169,6 +169,9 @@ export const CertidaoList: React.FC = () => {
                 <TableHeader label="Órgão" columnKey="orgao" />
                 <TableHeader label="Vencimento" columnKey="fimVigencia" />
                 <TableHeader label="Status" columnKey="statusNovoVenc" />
+                <TableHeader label="Gestor" columnKey="gestor" />
+                <TableHeader label="Responsável" columnKey="responsavel" />
+
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
@@ -203,6 +206,12 @@ export const CertidaoList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                     {item.statusNovoVenc}
+                  </td>
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {item.gestor}
+                  </td>
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {item.responsavel}
                   </td>
                 </tr>
               ))}
