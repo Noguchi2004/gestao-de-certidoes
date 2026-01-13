@@ -16,6 +16,8 @@ const INITIAL_STATE: CertidaoForm = {
   dataEmissao: '',
   fimVigencia: '',
   statusNovoVenc: '',
+  gestor: '',
+  responsavel: '',
 };
 
 type Tab = 'cadastro' | 'consulta';
