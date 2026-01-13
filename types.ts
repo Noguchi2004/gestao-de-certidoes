@@ -7,6 +7,8 @@ export interface CertidaoForm {
   dataEmissao: string;
   fimVigencia: string;
   statusNovoVenc: string;
+  gestor: string;
+  responsavel: string;
 }
 
 export interface ApiResponse {
