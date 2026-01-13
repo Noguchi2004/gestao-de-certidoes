@@ -4,7 +4,7 @@ import { Input } from './components/ui/Input';
 import { Select } from './components/ui/Select';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { CertidaoList } from './components/CertidaoList';
-import { CertidaoForm, ApiResponse } from './types';
+import { CertidaoForm, ApiResponse, CertidaoType } from './types';
 import { API_URL, DOC_TYPES, COMPANIES, COMPANY_CNPJ_MAP } from './constants';
 
 const INITIAL_STATE: CertidaoForm = {
@@ -23,7 +23,6 @@ type Tab = 'cadastro' | 'consulta';
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('cadastro');
 
-  // State for Form
   const [formData, setFormData] = useState<CertidaoForm>(INITIAL_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<{
@@ -31,37 +30,48 @@ export default function App() {
     message: string;
   }>({ type: null, message: '' });
 
-  // ---- NOVO: estados para multi‑email ----
+  // multi‑email
   const [currentEmail, setCurrentEmail] = useState('');
   const [emailError, setEmailError] = useState('');
+
+  // select de tipo de documento (controla a opção "Outro")
+  const [selectedDocType, setSelectedDocType] = useState<string>('');
 
   const emailList = formData.email
     ? formData.email.split(',').map(s => s.trim()).filter(Boolean)
     : [];
-  // ----------------------------------------
 
- const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-) => {
-  const { name, value } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
 
-  if (name === 'empresa') {
-    // ao trocar empresa, preenche CNPJ automaticamente
-    const autoCnpj = COMPANY_CNPJ_MAP[value] || '';
-    setFormData((prev) => ({
-      ...prev,
-      empresa: value,
-      cnpj: autoCnpj,
-    }));
-  } else {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-};
+    if (name === 'empresa') {
+      const autoCnpj = COMPANY_CNPJ_MAP[value] || '';
+      setFormData(prev => ({
+        ...prev,
+        empresa: value,
+        cnpj: autoCnpj,
+      }));
+    } else if (name === 'docTypeSelect') {
+      // mudou o select de tipo
+      setSelectedDocType(value);
 
-  // ---- NOVO: funções multi‑email ----
+      if (value === CertidaoType.OUTRO) {
+        // se for "Outro", zera o campo para o usuário digitar
+        setFormData(prev => ({ ...prev, tipoDocumento: '' }));
+      } else {
+        // se for qualquer tipo padrão, grava direto
+        setFormData(prev => ({ ...prev, tipoDocumento: value }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
   const handleAddEmail = () => {
     if (!currentEmail) return;
 
@@ -100,9 +110,8 @@ export default function App() {
       handleAddEmail();
     }
   };
-  // ------------------------------------
 
-    const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus({ type: null, message: '' });
@@ -129,7 +138,6 @@ export default function App() {
         body: JSON.stringify(payload),
       });
 
-      // Lê como texto primeiro para evitar erro de JSON
       const text = await response.text();
       console.log('Resposta bruta da API:', response.status, text);
 
@@ -146,8 +154,9 @@ export default function App() {
           message: 'Certidão cadastrada com sucesso!',
         });
         setFormData(INITIAL_STATE);
+        setCurrentEmail('');
+        setSelectedDocType('');
 
-        // Auto-hide success message after 5 segundos
         setTimeout(() => {
           setSubmitStatus({ type: null, message: '' });
         }, 5000);
@@ -241,7 +250,6 @@ export default function App() {
 
               <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
                   {/* Empresa */}
                   <div className="col-span-1 md:col-span-2">
                     <Select
@@ -264,77 +272,92 @@ export default function App() {
                     required
                   />
 
-                  {/* Email */}
                   {/* Emails (multi‑email) */}
-<div className="flex flex-col gap-1.5">
-  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-    Emails do Responsável (Máx. 5) <span className="text-red-500 ml-1">*</span>
-  </label>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Emails do Responsável (Máx. 5){' '}
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
 
-  <div className="flex gap-2">
-    <div className="relative flex-1">
-      <input
-        type="email"
-        value={currentEmail}
-        onChange={(e) => {
-          setCurrentEmail(e.target.value);
-          if (emailError) setEmailError('');
-        }}
-        onKeyDown={handleEmailKeyDown}
-        placeholder="Digite um email e pressione Enter..."
-        className={`flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
-          emailList.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
-        disabled={emailList.length >= 5}
-      />
-    </div>
-    <button
-      type="button"
-      onClick={handleAddEmail}
-      disabled={!currentEmail || emailList.length >= 5}
-      className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 dark:border-slate-700"
-      title="Adicionar Email"
-    >
-      <PlusCircle className="w-5 h-5" />
-    </button>
-  </div>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <input
+                          type="email"
+                          value={currentEmail}
+                          onChange={e => {
+                            setCurrentEmail(e.target.value);
+                            if (emailError) setEmailError('');
+                          }}
+                          onKeyDown={handleEmailKeyDown}
+                          placeholder="Digite um email e pressione Enter..."
+                          className={`flex h-10 w-full rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 ${
+                            emailList.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''
+                          }`}
+                          disabled={emailList.length >= 5}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddEmail}
+                        disabled={!currentEmail || emailList.length >= 5}
+                        className="inline-flex items-center justify-center px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 dark:border-slate-700"
+                        title="Adicionar Email"
+                      >
+                        <PlusCircle className="w-5 h-5" />
+                      </button>
+                    </div>
 
-  {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+                    {emailError && (
+                      <p className="text-xs text-red-500">{emailError}</p>
+                    )}
 
-  <div className="flex flex-wrap gap-2 min-h-[30px] pt-1">
-    {emailList.map((email, idx) => (
-      <span
-        key={idx}
-        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50"
-      >
-        {email}
-        <button
-          type="button"
-          onClick={() => removeEmail(email)}
-          className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5 transition-colors focus:outline-none"
-          title="Remover email"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      </span>
-    ))}
-    {emailList.length === 0 && (
-      <span className="text-xs text-slate-400 italic py-1">
-        Nenhum email adicionado.
-      </span>
-    )}
-  </div>
-</div>
+                    <div className="flex flex-wrap gap-2 min-h-[30px] pt-1">
+                      {emailList.map((email, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50"
+                        >
+                          {email}
+                          <button
+                            type="button"
+                            onClick={() => removeEmail(email)}
+                            className="hover:bg-blue-200 dark:hover:bg-blue-800 rounded-full p-0.5 transition-colors focus:outline-none"
+                            title="Remover email"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
+                      {emailList.length === 0 && (
+                        <span className="text-xs text-slate-400 italic py-1">
+                          Nenhum email adicionado.
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-                  {/* Tipo de Documento */}
-                  <Select
-                    label="Tipo de Documento"
-                    name="tipoDocumento"
-                    value={formData.tipoDocumento}
-                    onChange={handleChange}
-                    options={DOC_TYPES}
-                    required
-                  />
+                  {/* Tipo de Documento + Especificar quando Outro */}
+                  <div className="flex flex-col gap-4">
+                    <Select
+                      label="Tipo de Documento"
+                      name="docTypeSelect"
+                      value={selectedDocType}
+                      onChange={handleChange}
+                      options={DOC_TYPES}
+                      required
+                    />
+
+                    {selectedDocType === CertidaoType.OUTRO && (
+                      <Input
+                        label="Especificar"
+                        name="tipoDocumento"
+                        value={formData.tipoDocumento}
+                        onChange={handleChange}
+                        placeholder="Digite o nome da certidão"
+                        required
+                      />
+                    )}
+                  </div>
 
                   {/* Órgão */}
                   <Input
