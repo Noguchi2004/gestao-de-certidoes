@@ -5,6 +5,13 @@ import { Loader2, RefreshCw, FileX } from 'lucide-react';
 // URL específica para Leitura (GET)
 const DATA_URL = 'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
 
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  key: keyof CertidaoForm | null;
+  direction: SortDirection;
+}
+
 export const CertidaoList: React.FC = () => {
   const [data, setData] = useState<CertidaoForm[]>([]);
   const [isLoading, setIsLoading] = useState(false);
