@@ -5,7 +5,7 @@ import { Select } from './components/ui/Select';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { CertidaoList } from './components/CertidaoList';
 import { CertidaoForm, ApiResponse } from './types';
-import { API_URL, DOC_TYPES } from './constants';
+import { API_URL, DOC_TYPES, COMPANIES, COMPANY_CNPJ_MAP } from './constants';
 
 const INITIAL_STATE: CertidaoForm = {
   empresa: '',
@@ -40,15 +40,26 @@ export default function App() {
     : [];
   // ----------------------------------------
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+ const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  if (name === 'empresa') {
+    // ao trocar empresa, preenche CNPJ automaticamente
+    const autoCnpj = COMPANY_CNPJ_MAP[value] || '';
+    setFormData((prev) => ({
+      ...prev,
+      empresa: value,
+      cnpj: autoCnpj,
+    }));
+  } else {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  };
+  }
+};
 
   // ---- NOVO: funções multi‑email ----
   const handleAddEmail = () => {
@@ -230,14 +241,15 @@ export default function App() {
 
               <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
                   {/* Empresa */}
                   <div className="col-span-1 md:col-span-2">
-                    <Input
+                    <Select
                       label="Empresa / Responsável"
                       name="empresa"
                       value={formData.empresa}
                       onChange={handleChange}
-                      placeholder="Razão Social ou Nome do Responsável"
+                      options={COMPANIES}
                       required
                     />
                   </div>
