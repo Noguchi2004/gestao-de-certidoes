@@ -9,7 +9,6 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
-// URL específica para Leitura (GET)
 const DATA_URL =
   'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
 
@@ -25,7 +24,6 @@ export const CertidaoList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  // estado de ordenação
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: null,
     direction: 'asc',
@@ -62,7 +60,6 @@ export const CertidaoList: React.FC = () => {
     fetchData();
   }, []);
 
-  // aplica ordenação em memória
   const sortedData = useMemo(() => {
     if (!sortConfig.key) return data;
 
@@ -156,19 +153,14 @@ export const CertidaoList: React.FC = () => {
         </button>
       </div>
 
+      {/* wrapper com scroll */}
       <div className="overflow-x-auto overflow-y-auto max-h-[60vh]">
-  {sortedData.length === 0 ? (
-    <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-      Nenhuma certidão encontrada na base.
-    </div>
-  ) : (
-    <table className="min-w-full text-sm text-left">
-      {/* ... resto da tabela ... */}
-    </table>
-  )}
-    </div>
-
-      <table className="w-full text-sm text-left">
+        {sortedData.length === 0 ? (
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+            Nenhuma certidão encontrada na base.
+          </div>
+        ) : (
+          <table className="min-w-full text-sm text-left">
             <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
               <tr>
                 <TableHeader label="Empresa / Resp." columnKey="empresa" />
@@ -199,14 +191,16 @@ export const CertidaoList: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                    {item.fimVigencia === 'INDETERMINADO'
-                    ? 'Indeterminado'
-                    : item.fimVigencia
-                    ? new Date(item.fimVigencia).toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-                    : '-'}
+                      {item.fimVigencia === 'INDETERMINADO'
+                        ? 'Indeterminado'
+                        : item.fimVigencia
+                        ? new Date(item.fimVigencia).toLocaleDateString(
+                            'pt-BR',
+                            { timeZone: 'UTC' }
+                          )
+                        : '-'}
                     </span>
                   </td>
-
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                     {item.statusNovoVenc}
                   </td>
@@ -216,6 +210,7 @@ export const CertidaoList: React.FC = () => {
           </table>
         )}
       </div>
+
       <div className="px-6 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
         Total de registros: {sortedData.length}
       </div>
