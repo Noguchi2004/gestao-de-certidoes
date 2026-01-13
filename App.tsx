@@ -257,7 +257,7 @@ export default function App() {
                   {/* Empresa */}
                   <div className="col-span-1 md:col-span-2">
                     <Select
-                      label="Empresa / Responsável"
+                      label="Empresa"
                       name="empresa"
                       value={formData.empresa}
                       onChange={handleChange}
