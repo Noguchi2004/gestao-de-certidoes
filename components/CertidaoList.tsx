@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { CertidaoForm } from '../types';
 import { Loader2, RefreshCw, FileX,ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react';
 
@@ -49,6 +49,54 @@ export const CertidaoList: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+    // Lógica de ordenação
+  const sortedData = useMemo(() => {
+    if (!sortConfig.key) return data;
+
+    return [...data].sort((a, b) => {
+      const key = sortConfig.key as keyof CertidaoForm;
+      const aValue = a[key] ? String(a[key]).toLowerCase() : '';
+      const bValue = b[key] ? String(b[key]).toLowerCase() : '';
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [data, sortConfig]);
+
+  const requestSort = (key: keyof CertidaoForm) => {
+    let direction: SortDirection = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey: keyof CertidaoForm) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="w-4 h-4 ml-1 text-slate-400 opacity-50 group-hover:opacity-100 transition-opacity" />;
+    }
+    return sortConfig.direction === 'asc' 
+      ? <ChevronUp className="w-4 h-4 ml-1 text-blue-600 dark:text-blue-400" />
+      : <ChevronDown className="w-4 h-4 ml-1 text-blue-600 dark:text-blue-400" />;
+  };
+
+  const TableHeader = ({ label, columnKey }: { label: string; columnKey: keyof CertidaoForm }) => (
+    <th 
+      className="px-6 py-3 font-medium cursor-pointer group hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors select-none"
+      onClick={() => requestSort(columnKey)}
+    >
+      <div className="flex items-center justify-between">
+        {label}
+        {getSortIcon(columnKey)}
+      </div>
+    </th>
+  );
 
   if (isLoading && data.length === 0) {
     return (
