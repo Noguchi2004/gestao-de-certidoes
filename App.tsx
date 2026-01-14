@@ -15,6 +15,7 @@ const INITIAL_STATE: CertidaoForm = {
   orgao: '',
   dataEmissao: '',
   fimVigencia: '',
+  antecedenciaDias: 0,
   statusNovoVenc: '',
   gestor: '',
   responsavel: '',
@@ -128,6 +129,7 @@ export default function App() {
           orgao: formData.orgao,
           dataEmissao: formData.dataEmissao,
           fimVigencia: formData.fimVigencia,
+          antecedenciaDias: Number(formData.antecedenciaDias),
           statusNovoVenc: formData.statusNovoVenc,
           gestor: formData.gestor,
           responsael: formData.responsavel
@@ -391,6 +393,17 @@ export default function App() {
                     value={formData.fimVigencia}
                     onChange={handleChange}
                     required
+                  />
+
+                  {/* Antecedência para novo pedido */}
+                  <Input
+                    label="Dias de antecedência para renovação"
+                    name="antecedenciaDias"
+                    type="Number"
+                    min={0}
+                    value={formData.antecedenciaDias}
+                    onchange={handleChange}
+                    placeholder="Ex.: 15"
                   />
 
                   {/* Status / Novo Vencimento */}
