@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const APPS_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbwgDRCO4L11Ob0QOsIhuhnODgkr66dht1-BUMqTolAyb34jXGllkLzwkSl8JGTfasRakA/exec';
+  'https://script.google.com/macros/s/AKfycbx1tj2gWADdmxbsVYAIXXpheNYpT9R8g31yNg-9B4mZkPaqsrRyBE_Qp81b64ZrK-IP-Q/exec';
 
 async function handler(req: VercelRequest, res: VercelResponse) {
   try {
