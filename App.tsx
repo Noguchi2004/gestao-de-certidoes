@@ -399,10 +399,10 @@ export default function App() {
                   <Input
                     label="Dias de antecedência para renovação"
                     name="antecedenciaDias"
-                    type="Number"
+                    type="number"
                     min={0}
                     value={formData.antecedenciaDias}
-                    onchange={handleChange}
+                    onChange={handleChange}
                     placeholder="Ex.: 15"
                   />
 
