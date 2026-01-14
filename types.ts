@@ -6,7 +6,7 @@ export interface CertidaoForm {
   orgao: string;
   dataEmissao: string;
   fimVigencia: string;
-  antecedenciaDias: number;
+  antecedenciaDias: string;
   statusNovoVenc: string;
   gestor: string;
   responsavel: string;
