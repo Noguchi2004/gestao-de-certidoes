@@ -168,6 +168,7 @@ export const CertidaoList: React.FC = () => {
                 <TableHeader label="Tipo" columnKey="tipoDocumento" />
                 <TableHeader label="Órgão" columnKey="orgao" />
                 <TableHeader label="Vencimento" columnKey="fimVigencia" />
+                <TableHeader label="Antecendência (dias)" columnKey="antecedenciaDias" />
                 <TableHeader label="Status" columnKey="statusNovoVenc" />
                 <TableHeader label="Gestor" columnKey="gestor" />
                 <TableHeader label="Responsável" columnKey="responsavel" />
@@ -203,6 +204,9 @@ export const CertidaoList: React.FC = () => {
                           )
                         : '-'}
                     </span>
+                  </td>
+                  <td classname="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {ìtem.antecedenciaDias}  
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                     {item.statusNovoVenc}
