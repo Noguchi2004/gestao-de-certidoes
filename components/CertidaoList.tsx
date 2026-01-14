@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 const DATA_URL =
-  'https://script.google.com/macros/s/AKfycbx-Dz5XIrRyrv5lcwHsgz8IwWGk6ZG0UalVZmOkrRUSnjK0Mzx3zR86R0hUjxbNjSDSdw/exec';
+  'https://script.google.com/macros/s/AKfycbzVYuFUFDVBuosacE9CR4whKoTrY_obtxbp3u8BSCtl8I36MR3LUZhbhyW9BnrYznjk3g/exec';
 
 type SortDirection = 'asc' | 'desc';
 
