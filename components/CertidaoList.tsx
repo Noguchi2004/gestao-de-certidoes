@@ -205,8 +205,8 @@ export const CertidaoList: React.FC = () => {
                         : '-'}
                     </span>
                   </td>
-                  <td classname="px-6 py-4 text-slate-700 dark:text-slate-300">
-                    {ìtem.antecedenciaDias}  
+                  <td className="px-6 py-4 text-slate-700 dark:text-slate-300">
+                    {item.antecedenciaDias}  
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
                     {item.statusNovoVenc}
