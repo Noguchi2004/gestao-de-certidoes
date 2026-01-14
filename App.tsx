@@ -15,7 +15,7 @@ const INITIAL_STATE: CertidaoForm = {
   orgao: '',
   dataEmissao: '',
   fimVigencia: '',
-  antecedenciaDias: 0,
+  antecedenciaDias: '',
   statusNovoVenc: '',
   gestor: '',
   responsavel: '',
@@ -129,7 +129,7 @@ export default function App() {
           orgao: formData.orgao,
           dataEmissao: formData.dataEmissao,
           fimVigencia: formData.fimVigencia,
-          antecedenciaDias: Number(formData.antecedenciaDias),
+          antecedenciaDias: Number(formData.antecedenciaDias) || 0,
           statusNovoVenc: formData.statusNovoVenc,
           gestor: formData.gestor,
           responsael: formData.responsavel
