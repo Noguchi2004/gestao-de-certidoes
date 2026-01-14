@@ -132,7 +132,7 @@ export default function App() {
           antecedenciaDias: formData.antecedenciaDias,
           statusNovoVenc: formData.statusNovoVenc,
           gestor: formData.gestor,
-          responsael: formData.responsavel
+          responsavel: formData.responsavel
         },
       };
 
