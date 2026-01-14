@@ -281,7 +281,7 @@ export default function App() {
                   {/* Emails (multi‑email) */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Emails do Responsável (Máx. 5){' '}
+                      Email responsável/ gestor (Máx. 5){' '}
                       <span className="text-red-500 ml-1">*</span>
                     </label>
 
